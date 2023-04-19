@@ -50,8 +50,8 @@ class ApiService {
         episodesInstances.add(
           WebtoonEpisodeModel.fromJson(episode),
         );
-        return episodesInstances;
       }
+      return episodesInstances;
     }
     throw Error();
   }
