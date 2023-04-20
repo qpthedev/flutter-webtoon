@@ -51,7 +51,7 @@ class HomeScreen extends StatelessWidget {
         vertical: 10,
         horizontal: 20,
       ),
-      scrollDirection: Axis.horizontal,
+      scrollDirection: Axis.vertical,
       itemCount: snapshot.data!.length,
       itemBuilder: (context, index) {
         var webtoon = snapshot.data![index];
@@ -63,7 +63,7 @@ class HomeScreen extends StatelessWidget {
       },
       separatorBuilder: (context, index) {
         return const SizedBox(
-          width: 40,
+          height: 20,
         );
       },
     );
