@@ -2,30 +2,70 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webtoon/models/webtoon_detail_model.dart';
 import 'package:flutter_webtoon/models/webtoon_episode_model.dart';
 import 'package:flutter_webtoon/services/api_services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
-class DetailScreen extends StatelessWidget {
+class DetailScreen extends StatefulWidget {
   final String title, thumb, id;
 
-  DetailScreen({
+  const DetailScreen({
     super.key,
     required this.title,
     required this.thumb,
     required this.id,
   });
 
+  @override
+  State<DetailScreen> createState() => _DetailScreenState();
+}
+
+class _DetailScreenState extends State<DetailScreen> {
   late Future<WebtoonDetailModel> webtoon;
   late Future<List<WebtoonEpisodeModel>> episodes;
+  late SharedPreferences prefs;
+  bool isLiked = false;
 
-  onButtonTap({required String webtoonId, required String webtoonNo}) async {
-    await launchUrlString(
-        "https://comic.naver.com/webtoon/detail?titleId=$webtoonId&no=$webtoonNo");
+  Future initPrefs() async {
+    prefs = await SharedPreferences.getInstance();
+    final likedToons = prefs.getStringList("likedToons");
+
+    if (likedToons != null) {
+      if (likedToons.contains(widget.id) == true) {
+        isLiked = true;
+        setState(() {});
+      }
+    } else {
+      await prefs.setStringList("likedToons", []);
+    }
+  }
+
+  onHeartTap() async {
+    final likedToons = prefs.getStringList('likedToons');
+
+    if (likedToons != null) {
+      if (isLiked) {
+        likedToons.remove(widget.id);
+      } else {
+        likedToons.add(widget.id);
+      }
+      await prefs.setStringList('likedToons', likedToons);
+      setState(() {
+        isLiked = !isLiked;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    initPrefs();
   }
 
   @override
   Widget build(BuildContext context) {
-    webtoon = ApiService.getToonById(id);
-    episodes = ApiService.getLatestEpisodesById(id);
+    initPrefs();
+    webtoon = ApiService.getToonById(widget.id);
+    episodes = ApiService.getLatestEpisodesById(widget.id);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -33,8 +73,16 @@ class DetailScreen extends StatelessWidget {
         foregroundColor: Colors.green,
         backgroundColor: Colors.white,
         elevation: 2,
+        actions: [
+          IconButton(
+            onPressed: onHeartTap,
+            icon: Icon(
+              isLiked ? Icons.favorite : Icons.favorite_outline_outlined,
+            ),
+          ),
+        ],
         title: Text(
-          title,
+          widget.title,
           style: const TextStyle(
             fontSize: 24,
           ),
@@ -51,7 +99,7 @@ class DetailScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Hero(
-                  tag: id,
+                  tag: widget.id,
                   child: Container(
                     clipBehavior: Clip.hardEdge,
                     decoration: BoxDecoration(
@@ -66,7 +114,7 @@ class DetailScreen extends StatelessWidget {
                     ),
                     width: 250,
                     child: Image.network(
-                      thumb,
+                      widget.thumb,
                     ),
                   ),
                 ),
@@ -115,7 +163,7 @@ class DetailScreen extends StatelessWidget {
                       itemBuilder: (context, index) {
                         return GestureDetector(
                           onTap: () async {
-                            String webtoonId = id;
+                            String webtoonId = widget.id;
 
                             // Making up for a mistake in webtoon fetching api
                             String webtoonNo =
