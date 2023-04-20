@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webtoon/models/webtoon_detail_model.dart';
 import 'package:flutter_webtoon/models/webtoon_episode_model.dart';
 import 'package:flutter_webtoon/services/api_services.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class DetailScreen extends StatelessWidget {
   final String title, thumb, id;
@@ -15,6 +16,11 @@ class DetailScreen extends StatelessWidget {
 
   late Future<WebtoonDetailModel> webtoon;
   late Future<List<WebtoonEpisodeModel>> episodes;
+
+  onButtonTap({required String webtoonId, required String webtoonNo}) async {
+    await launchUrlString(
+        "https://comic.naver.com/webtoon/detail?titleId=$webtoonId&no=$webtoonNo");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -107,33 +113,46 @@ class DetailScreen extends StatelessWidget {
                   return Expanded(
                     child: ListView.separated(
                       itemBuilder: (context, index) {
-                        // return Text(snapshot.data![index].title);
-                        return Container(
-                          decoration: BoxDecoration(
-                            color: Colors.green.shade400,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 30,
-                              vertical: 10,
+                        return GestureDetector(
+                          onTap: () async {
+                            String webtoonId = id;
+
+                            // Making up for a mistake in webtoon fetching api
+                            String webtoonNo =
+                                (int.parse(snapshot.data![index].id) + 1)
+                                    .toString();
+
+                            await launchUrlString(
+                                "https://comic.naver.com/webtoon/detail?titleId=$webtoonId&no=$webtoonNo");
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.green.shade400,
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  snapshot.data![index].title,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 15,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 30,
+                                vertical: 10,
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    snapshot.data![index].title,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 15,
+                                    ),
                                   ),
-                                ),
-                                const Icon(
-                                  Icons.chevron_right_rounded,
-                                  color: Colors.white,
-                                ),
-                              ],
+                                  const Icon(
+                                    Icons.chevron_right_rounded,
+                                    color: Colors.white,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         );
