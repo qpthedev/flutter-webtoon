@@ -91,7 +91,7 @@ class _DetailScreenState extends State<DetailScreen> {
       body: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: 30,
-          vertical: 25,
+          vertical: 18,
         ),
         child: Column(
           children: [
@@ -131,20 +131,29 @@ class _DetailScreenState extends State<DetailScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        snapshot.data!.about,
-                        style: const TextStyle(
-                          fontSize: 15,
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 15,
-                      ),
-                      Text(
                         '${snapshot.data!.genre} / ${snapshot.data!.age}',
                         style: const TextStyle(
                           fontSize: 15,
                         ),
                       ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      SizedBox(
+                        height: 150,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          child: Text(
+                            snapshot.data!.about,
+                            style: const TextStyle(
+                              fontSize: 15,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      )
                     ],
                   );
                 }
